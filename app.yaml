@@ -1,0 +1,25 @@
+command:
+  - "python"
+  - "-m"
+  - "uvicorn"
+  - "app:app"
+  - "--host"
+  - "0.0.0.0"
+  - "--port"
+  - "8000"
+
+env:
+  # Note: PGHOST, PGPORT, PGDATABASE, PGUSER are auto-injected by Databricks
+  # when the database resource is attached — do NOT specify valueFrom here.
+
+  # Foundation Model serving endpoint
+  - name: SERVING_ENDPOINT
+    value: databricks-claude-sonnet-4-5
+
+  # Unity Catalog config
+  - name: CATALOG
+    value: periscope_harmonizer_catalog
+  - name: DB_SCHEMA
+    value: periscope
+  - name: VS_ENDPOINT
+    value: periscope-vs-endpoint

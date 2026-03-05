@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv/
+venv/
+.env
+
+# Node / Frontend
+node_modules/
+npm-debug.log*
+frontend/.vite/
+
+# Keep frontend/dist for deployment — do NOT exclude it
+
+# Databricks
+.databricks/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
