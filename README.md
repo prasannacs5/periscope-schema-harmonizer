@@ -4,6 +4,18 @@
 
 ---
 
+## Screenshots
+
+| Customer Portal — Upload | Upload History |
+|:---:|:---:|
+| ![Upload](docs/screenshots/01_upload.png) | ![History](docs/screenshots/02_history.png) |
+
+| Data Assistant (Chat) | Analyst — Pending Reviews |
+|:---:|:---:|
+| ![Chat](docs/screenshots/03_chat.png) | ![Pending Reviews](docs/screenshots/04_pending_reviews.png) |
+
+---
+
 ## Overview
 
 McKinsey's **Periscope GSM** platform helps consumer goods and retail companies analyze sales performance. A core challenge is that every customer brings a different data format — different column names, units, and structures for the same underlying sales data.
