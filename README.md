@@ -6,13 +6,17 @@
 
 ## Screenshots
 
-| Customer Portal — Upload | Upload History |
+| Home | Customer Portal — Upload |
 |:---:|:---:|
-| ![Upload](docs/screenshots/01_upload.png) | ![History](docs/screenshots/02_history.png) |
+| ![Home](docs/screenshots/01_home.png) | ![Upload](docs/screenshots/01_upload.png) |
 
-| Data Assistant (Chat) | Analyst — Pending Reviews |
+| Upload History | Data Assistant (Chat) |
 |:---:|:---:|
-| ![Chat](docs/screenshots/03_chat.png) | ![Pending Reviews](docs/screenshots/04_pending_reviews.png) |
+| ![History](docs/screenshots/02_history.png) | ![Chat](docs/screenshots/03_chat.png) |
+
+| Analyst — Pending Reviews | CDM Explorer |
+|:---:|:---:|
+| ![Pending Reviews](docs/screenshots/04_pending_reviews.png) | ![CDM Explorer](docs/screenshots/05_cdm_explorer.png) |
 
 ---
 
@@ -154,6 +158,11 @@ periscope-schema-harmonizer/
 │   │   └── types/index.ts          # TypeScript type definitions
 │   ├── package.json
 │   └── vite.config.ts
+│
+├── docs/
+│   ├── DEMO_SCRIPT.md              # Step-by-step demo walkthrough (~10 min)
+│   ├── EMAIL_DRAFT.md              # Project summary email draft
+│   └── screenshots/                # App screenshots (6 screens)
 │
 └── setup/
     ├── 01_create_uc_tables.py      # Create Unity Catalog Delta tables + seed CDM fields
@@ -388,6 +397,22 @@ LLM_MODEL      = "databricks-claude-sonnet-4-5" # Foundation Model serving endpo
 | `CUST_001` | Carrefour SA | Retail |
 | `CUST_002` | Unilever Global | FMCG |
 | `CUST_003` | Reckitt Benckiser | Consumer Goods |
+
+---
+
+## Demo
+
+A complete demo walkthrough is available in [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) (~10 minutes). It covers:
+
+1. **The Problem** — why manual schema mapping doesn't scale
+2. **Customer Upload** — file upload and schema extraction
+3. **AI Mapping** — Vector Search + Claude Sonnet 4.5 in action
+4. **Analyst Review** — human-in-the-loop approval workflow
+5. **Chat Interface** — conversational Q&A about schemas and mappings
+6. **CDM Explorer** — browsing the canonical data model
+7. **Architecture Recap** — Databricks components summary
+
+A project summary email draft is in [`docs/EMAIL_DRAFT.md`](docs/EMAIL_DRAFT.md).
 
 ---
 

@@ -86,5 +86,5 @@
 ## Phase 6: Demo Polish
 
 - [x] **6.1** Pre-load 2 approved mappings in Vector Search (simulate prior history) ✅ (CUST_001 POS + CUST_003 POS synced)
-- [ ] **6.2** Create demo script / walkthrough notes
-- [ ] **6.3** Final screenshot / recording of full flow
+- [x] **6.2** Create demo script / walkthrough notes ✅ (docs/DEMO_SCRIPT.md)
+- [x] **6.3** Final screenshot / recording of full flow ✅ (6 screenshots in docs/screenshots/, email draft in docs/EMAIL_DRAFT.md)
