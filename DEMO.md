@@ -2,13 +2,13 @@
 
 ## Overview
 
-A feature enhancement for **McKinsey Periscope** (GSM Practice) that enables customers to upload proprietary sales data (POS, CRM, etc.) through a branded customer-facing portal. The system uses an LLM + Vector Search to intelligently map the customer's schema to Periscope's **Common Data Model (CDM)**, routes proposed mappings through a **human review workflow**, and enriches the CDM post-approval.
+A feature enhancement for **Periscope** (GSM Practice) that enables customers to upload proprietary sales data (POS, CRM, etc.) through a branded customer-facing portal. The system uses an LLM + Vector Search to intelligently map the customer's schema to Periscope's **Common Data Model (CDM)**, routes proposed mappings through a **human review workflow**, and enriches the CDM post-approval.
 
 ---
 
 ## Brand Guidelines
 
-### McKinsey / Periscope Brand
+### Periscope Brand
 
 | Token | Value |
 |-------|-------|

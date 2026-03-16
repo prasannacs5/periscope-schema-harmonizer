@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Periscope Schema Harmonizer",
-    description="McKinsey Periscope — AI-powered schema harmonization for customer sales data",
+    description="Periscope — AI-powered schema harmonization for customer sales data",
     version="1.0.0",
     lifespan=lifespan,
 )

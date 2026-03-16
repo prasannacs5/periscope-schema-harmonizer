@@ -1,28 +1,28 @@
 # Periscope Schema Harmonizer
 
-> **AI-powered schema harmonization for McKinsey Periscope** — maps customer sales data to a Common Data Model using LLM-based mapping, Vector Search, and a human-in-the-loop review workflow. Built as a full-stack Databricks App.
+> **AI-powered schema harmonization for Periscope** — maps customer sales data to a Common Data Model using LLM-based mapping, Vector Search, and a human-in-the-loop review workflow. Built as a full-stack Databricks App.
 
 ---
 
 ## Screenshots
 
-| Home | Customer Portal — Upload |
+| Customer Portal — Upload | Upload History |
 |:---:|:---:|
-| ![Home](docs/screenshots/01_home.png) | ![Upload](docs/screenshots/01_upload.png) |
+| ![Upload](docs/screenshots/01_upload.png) | ![History](docs/screenshots/02_history.png) |
 
-| Upload History | Data Assistant (Chat) |
+| Data Assistant (Chat) | Analyst — Pending Reviews |
 |:---:|:---:|
-| ![History](docs/screenshots/02_history.png) | ![Chat](docs/screenshots/03_chat.png) |
+| ![Chat](docs/screenshots/03_chat.png) | ![Pending Reviews](docs/screenshots/04_pending_reviews.png) |
 
-| Analyst — Pending Reviews | CDM Explorer |
-|:---:|:---:|
-| ![Pending Reviews](docs/screenshots/04_pending_reviews.png) | ![CDM Explorer](docs/screenshots/05_cdm_explorer.png) |
+| CDM Explorer |
+|:---:|
+| ![CDM Explorer](docs/screenshots/05_cdm_explorer.png) |
 
 ---
 
 ## Overview
 
-McKinsey's **Periscope GSM** platform helps consumer goods and retail companies analyze sales performance. A core challenge is that every customer brings a different data format — different column names, units, and structures for the same underlying sales data.
+The **Periscope GSM** platform helps consumer goods and retail companies analyze sales performance. A core challenge is that every customer brings a different data format — different column names, units, and structures for the same underlying sales data.
 
 **Periscope Schema Harmonizer** solves this by:
 
@@ -418,4 +418,4 @@ A project summary email draft is in [`docs/EMAIL_DRAFT.md`](docs/EMAIL_DRAFT.md)
 
 ## License
 
-Internal demo. Built for McKinsey Periscope GSM Practice on Databricks.
+Internal demo. Built for Periscope GSM Practice on Databricks.

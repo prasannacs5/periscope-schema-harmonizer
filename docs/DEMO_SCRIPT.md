@@ -17,7 +17,7 @@
 ## Act 1: The Problem (1 min)
 
 **Talking points:**
-- McKinsey Periscope ingests sales data from dozens of customers — each with a different schema
+- Periscope ingests sales data from dozens of customers — each with a different schema
 - Column names vary wildly: `Revenue`, `gross_rev`, `total_sales`, `amt_sold` all mean the same thing
 - Today this mapping is manual, error-prone, and slow — takes days per new customer
 - **Goal**: automate schema harmonization with AI while keeping humans in the loop

@@ -49,7 +49,7 @@
 
 ## Phase 3: Frontend (React + TypeScript)
 
-- [x] **3.1** Scaffold React/Vite frontend with McKinsey/Periscope brand theme
+- [x] **3.1** Scaffold React/Vite frontend with Periscope brand theme
 - [x] **3.2** Build Customer Portal
   - File upload dropzone (CSV/Excel), customer ID + source system
   - Upload history table with status badges

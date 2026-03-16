@@ -71,7 +71,7 @@ def build_mapping_prompt(
             except Exception:
                 pass
 
-    system = """You are a data integration expert for McKinsey's Periscope GSM platform.
+    system = """You are a data integration expert for the Periscope GSM platform.
 Your job is to map customer sales data schemas to Periscope's Common Data Model (CDM).
 
 Return ONLY valid JSON in exactly this format:

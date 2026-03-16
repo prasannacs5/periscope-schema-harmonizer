@@ -54,7 +54,7 @@ async def chat_endpoint(msg: ChatMessage):
     """Answer questions about schema mappings, CDM, and upload history."""
     context = build_context(msg.upload_id, msg.customer_id)
 
-    system = f"""You are a data integration assistant for McKinsey's Periscope platform.
+    system = f"""You are a data integration assistant for the Periscope platform.
 Help analysts understand schema mappings, the Common Data Model, and uploaded customer data.
 Be concise and precise. Use technical terminology appropriately.
 
