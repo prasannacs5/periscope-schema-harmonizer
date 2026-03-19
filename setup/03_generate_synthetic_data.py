@@ -1,25 +1,32 @@
 """
 Generate synthetic sales data for 3 demo customers with different schemas.
 Each customer has POS + CRM data with their own column naming conventions.
-Uploads metadata to Lakebase and raw data to Unity Catalog volumes.
 
-Run with: uv run python3 setup/03_generate_synthetic_data.py
+Run with:
+  CATALOG=... DB_SCHEMA=... WAREHOUSE_ID=... \
+  PGHOST=... PGDATABASE=... PGUSER=... \
+  python3 setup/03_generate_synthetic_data.py
 """
 import asyncio
-import asyncpg
 import json
 import uuid
 import random
-from datetime import date, timedelta, datetime
-from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.sql import StatementState
+import sys
+import os
+from datetime import date, timedelta
 
-PROFILE = "fe-vm-periscope-harmonizer"
-WAREHOUSE_ID = "dd322a5c9476d8cf"
-CATALOG = "periscope_harmonizer_catalog"
-SCHEMA = "periscope"
-LAKEBASE_HOST = "instance-dcc73e40-6699-4763-b3bf-7ce975db83bb.database.cloud.databricks.com"
-LAKEBASE_USER = "prasanna.selvaraj@databricks.com"
+sys.path.insert(0, os.path.dirname(__file__))
+from _env import (
+    get_workspace_client, get_oauth_token, require_lakebase,
+    WAREHOUSE_ID, CATALOG, SCHEMA,
+    LAKEBASE_HOST, LAKEBASE_PORT, LAKEBASE_DB, LAKEBASE_USER,
+)
+
+import asyncpg
+from databricks.sdk.service.sql import StatementState
+import time
+
+require_lakebase()
 
 # ── Customer schemas (each has unique column names for POS + CRM) ─────────────
 
@@ -28,7 +35,6 @@ CUSTOMERS = {
         "name": "Carrefour SA",
         "industry": "Retail",
         "pos_schema": {
-            # source_col -> (CDM field, dtype)
             "TXN_DATE": ("date", "date"),
             "STORE_CODE": ("store_id", "string"),
             "EAN_CODE": ("product_sku", "string"),
@@ -182,16 +188,10 @@ def generate_rows(schema: dict, n: int = 50) -> list[dict]:
     return rows
 
 
-def get_token() -> str:
-    w = WorkspaceClient(profile=PROFILE)
-    auth_headers = w.config.authenticate()
-    return auth_headers["Authorization"].replace("Bearer ", "")
-
-
 async def insert_uploads_to_lakebase(uploads: list[dict]):
-    token = get_token()
+    token = get_oauth_token()
     conn = await asyncpg.connect(
-        host=LAKEBASE_HOST, port=5432, database="periscope_harmonizer",
+        host=LAKEBASE_HOST, port=LAKEBASE_PORT, database=LAKEBASE_DB,
         user=LAKEBASE_USER, password=token, ssl="require",
     )
     for u in uploads:
@@ -207,7 +207,7 @@ async def insert_uploads_to_lakebase(uploads: list[dict]):
     print(f"  ✓ Inserted {len(uploads)} upload records into Lakebase")
 
 
-def insert_uploads_to_uc(w: WorkspaceClient, uploads: list[dict]):
+def insert_uploads_to_uc(w, uploads: list[dict]):
     values = []
     for u in uploads:
         schema_esc = u["schema_json"].replace("'", "''")
@@ -227,7 +227,7 @@ def insert_uploads_to_uc(w: WorkspaceClient, uploads: list[dict]):
         warehouse_id=WAREHOUSE_ID, statement=sql.strip(), wait_timeout="50s"
     )
     while resp.status.state in (StatementState.PENDING, StatementState.RUNNING):
-        import time; time.sleep(3)
+        time.sleep(3)
         resp = w.statement_execution.get_statement(resp.statement_id)
     if resp.status.state != StatementState.SUCCEEDED:
         raise RuntimeError(f"UC insert failed: {resp.status.error}")
@@ -235,7 +235,7 @@ def insert_uploads_to_uc(w: WorkspaceClient, uploads: list[dict]):
 
 
 def main():
-    w = WorkspaceClient(profile=PROFILE)
+    w = get_workspace_client()
     uploads = []
 
     for cust_id, cust in CUSTOMERS.items():
@@ -267,9 +267,8 @@ def main():
     print("Inserting into Lakebase uploads...")
     asyncio.run(insert_uploads_to_lakebase(uploads))
 
-    print("\n✓ Synthetic data generation complete!")
+    print(f"\n✓ Synthetic data generation complete!")
     print(f"  Created {len(uploads)} upload records for {len(CUSTOMERS)} customers")
-    print("  Ready for schema mapping (Phase 2)")
 
 
 if __name__ == "__main__":

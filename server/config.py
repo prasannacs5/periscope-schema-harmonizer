@@ -4,25 +4,22 @@ from databricks.sdk import WorkspaceClient
 
 IS_DATABRICKS_APP = bool(os.environ.get("DATABRICKS_APP_NAME"))
 
-PROFILE = os.environ.get("DATABRICKS_PROFILE", "fe-vm-periscope-harmonizer")
-WAREHOUSE_ID = os.environ.get("WAREHOUSE_ID", "dd322a5c9476d8cf")
-CATALOG = os.environ.get("CATALOG", "periscope_harmonizer_catalog")
-SCHEMA = os.environ.get("DB_SCHEMA", "periscope")
-VS_ENDPOINT = os.environ.get("VS_ENDPOINT", "periscope-vs-endpoint")
+PROFILE = os.environ.get("DATABRICKS_PROFILE", "")
+WAREHOUSE_ID = os.environ.get("WAREHOUSE_ID", "")
+CATALOG = os.environ.get("CATALOG", "")
+SCHEMA = os.environ.get("DB_SCHEMA", "")
+VS_ENDPOINT = os.environ.get("VS_ENDPOINT", "")
 VS_INDEX = f"{CATALOG}.{SCHEMA}.schema_mappings_index"
-LLM_MODEL = os.environ.get("SERVING_ENDPOINT", "databricks-claude-sonnet-4-5")
+LLM_MODEL = os.environ.get("SERVING_ENDPOINT", "")
 
-LAKEBASE_HOST = os.environ.get(
-    "PGHOST",
-    "instance-dcc73e40-6699-4763-b3bf-7ce975db83bb.database.cloud.databricks.com"
-)
+LAKEBASE_HOST = os.environ.get("PGHOST", "")
 _pgport_raw = os.environ.get("PGPORT", "5432")
 try:
     LAKEBASE_PORT = int(_pgport_raw)
 except (ValueError, TypeError):
     LAKEBASE_PORT = 5432
-LAKEBASE_DB = os.environ.get("PGDATABASE", "periscope_harmonizer")
-LAKEBASE_USER = os.environ.get("PGUSER", "prasanna.selvaraj@databricks.com")
+LAKEBASE_DB = os.environ.get("PGDATABASE", "")
+LAKEBASE_USER = os.environ.get("PGUSER", "")
 
 
 def get_workspace_client() -> WorkspaceClient:

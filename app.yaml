@@ -9,17 +9,24 @@ command:
   - "8000"
 
 env:
-  # Note: PGHOST, PGPORT, PGDATABASE, PGUSER are auto-injected by Databricks
-  # when the database resource is attached — do NOT specify valueFrom here.
-
   # Foundation Model serving endpoint
   - name: SERVING_ENDPOINT
     value: databricks-claude-sonnet-4-5
 
   # Unity Catalog config
   - name: CATALOG
-    value: periscope_harmonizer_catalog
+    value: cfo_eval_demo_catalog
   - name: DB_SCHEMA
     value: periscope
   - name: VS_ENDPOINT
     value: periscope-vs-endpoint
+
+  # Lakebase connection
+  - name: PGHOST
+    value: ep-still-tooth-d249x47s.database.us-east-1.cloud.databricks.com
+  - name: PGPORT
+    value: "5432"
+  - name: PGDATABASE
+    value: periscope_harmonizer
+  - name: LAKEBASE_ENDPOINT_PATH
+    value: projects/periscope-harmonizer/branches/production/endpoints/primary

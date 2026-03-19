@@ -1,18 +1,21 @@
 """
 Create Unity Catalog Delta tables for the Periscope Schema Harmonizer.
-Run with: uv run python3 setup/01_create_uc_tables.py
+Run with:
+  CATALOG=periscope_harmonizer_catalog DB_SCHEMA=periscope WAREHOUSE_ID=<id> \
+  python3 setup/01_create_uc_tables.py
 """
 import time
-from databricks.sdk import WorkspaceClient
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(__file__))
+from _env import get_workspace_client, WAREHOUSE_ID, CATALOG, SCHEMA
+
 from databricks.sdk.service.sql import StatementState
 
-PROFILE = "fe-vm-periscope-harmonizer"
-WAREHOUSE_ID = "dd322a5c9476d8cf"
-CATALOG = "periscope_harmonizer_catalog"
-SCHEMA = "periscope"
-
 DDL_STATEMENTS = [
-    # CDM schema definition - tracks what the canonical fields are
+    f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}",
+
     f"""
     CREATE TABLE IF NOT EXISTS {CATALOG}.{SCHEMA}.cdm_schema (
         field_id        STRING NOT NULL,
@@ -30,7 +33,6 @@ DDL_STATEMENTS = [
     COMMENT 'Common Data Model field definitions for Periscope'
     """,
 
-    # Raw uploads - metadata about uploaded files
     f"""
     CREATE TABLE IF NOT EXISTS {CATALOG}.{SCHEMA}.raw_uploads (
         upload_id        STRING NOT NULL,
@@ -50,7 +52,6 @@ DDL_STATEMENTS = [
     COMMENT 'Metadata for all uploaded customer sales files'
     """,
 
-    # Ingested sales - post-approval mapped data in CDM format
     f"""
     CREATE TABLE IF NOT EXISTS {CATALOG}.{SCHEMA}.ingested_sales (
         upload_id        STRING NOT NULL,
@@ -79,7 +80,6 @@ DDL_STATEMENTS = [
     COMMENT 'Post-approval sales data mapped to Periscope CDM'
     """,
 
-    # Schema mapping history - approved mappings stored for lineage
     f"""
     CREATE TABLE IF NOT EXISTS {CATALOG}.{SCHEMA}.approved_mappings (
         mapping_id    STRING NOT NULL,
@@ -91,11 +91,11 @@ DDL_STATEMENTS = [
         approved_at   TIMESTAMP
     )
     USING DELTA
+    TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true')
     COMMENT 'Approved schema mappings used to train Vector Search index'
     """,
 ]
 
-# Seed CDM schema with standard fields
 CDM_SEED = f"""
 INSERT INTO {CATALOG}.{SCHEMA}.cdm_schema VALUES
   ('f001', 'date',             'Date',              'DATE',        'Transaction date',                true,  '2024-01-15',           'system', now(), 'system'),
@@ -118,7 +118,7 @@ INSERT INTO {CATALOG}.{SCHEMA}.cdm_schema VALUES
 """
 
 
-def run_sql(w: WorkspaceClient, sql: str, description: str = ""):
+def run_sql(w, sql: str, description: str = ""):
     if description:
         print(f"  → {description}")
     resp = w.statement_execution.execute_statement(
@@ -126,7 +126,6 @@ def run_sql(w: WorkspaceClient, sql: str, description: str = ""):
         statement=sql.strip(),
         wait_timeout="50s",
     )
-    # Poll until done if still running
     while resp.status.state in (StatementState.PENDING, StatementState.RUNNING):
         time.sleep(3)
         resp = w.statement_execution.get_statement(resp.statement_id)
@@ -136,18 +135,17 @@ def run_sql(w: WorkspaceClient, sql: str, description: str = ""):
 
 
 def main():
-    w = WorkspaceClient(profile=PROFILE)
-    print(f"Connected to workspace. Running DDL on {CATALOG}.{SCHEMA}...")
+    w = get_workspace_client()
+    print(f"Connected. Running DDL on {CATALOG}.{SCHEMA}...")
 
     for i, ddl in enumerate(DDL_STATEMENTS, 1):
-        table_name = [l.strip() for l in ddl.strip().split('\n') if 'CREATE TABLE' in l][0]
-        run_sql(w, ddl, f"Creating table {i}/{len(DDL_STATEMENTS)}: {table_name}")
+        first_line = ddl.strip().split("\n")[0].strip()[:80]
+        run_sql(w, ddl, f"Step {i}/{len(DDL_STATEMENTS)}: {first_line}")
 
     print("  → Seeding CDM schema fields...")
     run_sql(w, CDM_SEED, "Inserting 17 CDM field definitions")
 
-    print("\n✓ Unity Catalog tables created successfully!")
-    print(f"  Catalog: {CATALOG}.{SCHEMA}")
+    print(f"\n✓ Unity Catalog tables created in {CATALOG}.{SCHEMA}")
     print("  Tables: cdm_schema, raw_uploads, ingested_sales, approved_mappings")
 
 

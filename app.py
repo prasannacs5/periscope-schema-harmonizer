@@ -11,6 +11,18 @@ from server.routes import upload, mapping, reviews, cdm, chat
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Warm up DB pool on startup."""
+    import os
+    # Debug: show injected PG env vars
+    # Show all PG-related env vars
+    pg_vars = {k: v for k, v in os.environ.items() if "PG" in k.upper() or "POSTGRES" in k.upper() or "LAKEBASE" in k.upper()}
+    for var in sorted(pg_vars):
+        val = pg_vars[var]
+        if "PASS" in var.upper() or "SECRET" in var.upper() or "TOKEN" in var.upper():
+            display = f"(set, len={len(val)})"
+        else:
+            display = f"{val[:30]}..." if len(val) > 30 else (val or "(not set)")
+        print(f"[env] {var}={display}")
+
     from server.db import get_db
     try:
         await get_db()

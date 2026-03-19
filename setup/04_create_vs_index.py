@@ -1,13 +1,16 @@
 """
 Create Vector Search index for historical schema mappings.
-The index stores embeddings of source schemas so that future uploads
-can retrieve similar historical mappings as few-shot context for the LLM.
-
-Run with: uv run python3 setup/04_create_vs_index.py
+Run with:
+  CATALOG=... DB_SCHEMA=... WAREHOUSE_ID=... VS_ENDPOINT=... \
+  python3 setup/04_create_vs_index.py
 """
 import time
-import json
-from databricks.sdk import WorkspaceClient
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(__file__))
+from _env import get_workspace_client, require_vs, CATALOG, SCHEMA, VS_ENDPOINT
+
 from databricks.sdk.service.vectorsearch import (
     DeltaSyncVectorIndexSpecRequest,
     EmbeddingSourceColumn,
@@ -15,16 +18,14 @@ from databricks.sdk.service.vectorsearch import (
     VectorIndexType,
 )
 
-PROFILE = "fe-vm-periscope-harmonizer"
-CATALOG = "periscope_harmonizer_catalog"
-SCHEMA = "periscope"
-VS_ENDPOINT = "periscope-vs-endpoint"
+require_vs()
+
 INDEX_NAME = f"{CATALOG}.{SCHEMA}.schema_mappings_index"
 SOURCE_TABLE = f"{CATALOG}.{SCHEMA}.approved_mappings"
 
 
 def main():
-    w = WorkspaceClient(profile=PROFILE)
+    w = get_workspace_client()
 
     # Check if index already exists
     try:
@@ -39,8 +40,6 @@ def main():
     print(f"  Source table: {SOURCE_TABLE}")
     print(f"  Endpoint: {VS_ENDPOINT}")
 
-    # The approved_mappings UC table needs change data feed enabled for Delta Sync
-    # We'll use a managed embedding index with the source_schema column
     w.vector_search_indexes.create_index(
         name=INDEX_NAME,
         endpoint_name=VS_ENDPOINT,

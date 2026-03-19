@@ -1,23 +1,23 @@
 """
-Create Lakebase (PostgreSQL) tables for the Periscope Schema Harmonizer state management.
-Run with: uv run python3 setup/02_create_lakebase_tables.py
+Create Lakebase (PostgreSQL) tables for the Periscope Schema Harmonizer.
+Run with:
+  CATALOG=... DB_SCHEMA=... WAREHOUSE_ID=... \
+  PGHOST=<lakebase-host> PGDATABASE=periscope_harmonizer PGUSER=<email> \
+  python3 setup/02_create_lakebase_tables.py
 """
 import asyncio
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(__file__))
+from _env import (
+    get_oauth_token, require_lakebase,
+    LAKEBASE_HOST, LAKEBASE_PORT, LAKEBASE_DB, LAKEBASE_USER,
+)
+
 import asyncpg
-from databricks.sdk import WorkspaceClient
 
-PROFILE = "fe-vm-periscope-harmonizer"
-LAKEBASE_HOST = "instance-dcc73e40-6699-4763-b3bf-7ce975db83bb.database.cloud.databricks.com"
-LAKEBASE_PORT = 5432
-LAKEBASE_DB = "periscope_harmonizer"
-LAKEBASE_USER = "prasanna.selvaraj@databricks.com"
-
-
-def get_token() -> str:
-    w = WorkspaceClient(profile=PROFILE)
-    auth_headers = w.config.authenticate()
-    return auth_headers["Authorization"].replace("Bearer ", "")
-
+require_lakebase()
 
 DDL = """
 -- Customers table
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS schema_mappings (
     upload_id        VARCHAR(64) NOT NULL REFERENCES uploads(upload_id),
     customer_id      VARCHAR(64) NOT NULL,
     proposed_at      TIMESTAMPTZ DEFAULT NOW(),
-    mapping_json     TEXT NOT NULL COMMENT_PLACEHOLDER,
+    mapping_json     TEXT NOT NULL,
     confidence_score FLOAT,
     llm_reasoning    TEXT,
     similar_mapping_ids TEXT,
@@ -79,9 +79,6 @@ CREATE INDEX IF NOT EXISTS idx_mappings_status ON schema_mappings(status);
 CREATE INDEX IF NOT EXISTS idx_reviews_mapping ON mapping_reviews(mapping_id);
 """
 
-# PostgreSQL doesn't support COMMENT_PLACEHOLDER, remove it
-DDL = DDL.replace("COMMENT_PLACEHOLDER", "")
-
 SEED_CUSTOMERS = """
 INSERT INTO customers (customer_id, customer_name, industry, contact_email) VALUES
   ('CUST_001', 'Carrefour SA',        'Retail',         'data@carrefour.com'),
@@ -93,7 +90,7 @@ ON CONFLICT (customer_id) DO NOTHING;
 
 async def setup_lakebase():
     print("Getting OAuth token...")
-    token = get_token()
+    token = get_oauth_token()
 
     print(f"Connecting to Lakebase at {LAKEBASE_HOST}...")
     conn = await asyncpg.connect(
@@ -105,15 +102,10 @@ async def setup_lakebase():
         ssl="require",
     )
 
-    # Drop test table if it exists from debugging
-    await conn.execute("DROP TABLE IF EXISTS test_tbl")
-
     print("Creating tables...")
-    # Split by semicolon, strip comments, skip empty
     raw = [s.strip() for s in DDL.split(";")]
     statements = []
     for s in raw:
-        # Remove leading comment lines
         lines = [l for l in s.splitlines() if not l.strip().startswith("--")]
         clean = "\n".join(lines).strip()
         if clean:
@@ -135,7 +127,6 @@ async def setup_lakebase():
     await conn.execute(SEED_CUSTOMERS)
     print("  ✓ Inserted 3 demo customers")
 
-    # Verify
     count = await conn.fetchval("SELECT COUNT(*) FROM customers")
     print(f"  ✓ customers table has {count} rows")
 

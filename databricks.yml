@@ -1,0 +1,46 @@
+bundle:
+  name: periscope-schema-harmonizer
+
+variables:
+  catalog:
+    description: "Unity Catalog catalog for Periscope tables"
+    default: "periscope_harmonizer_catalog"
+  schema:
+    description: "Schema for Periscope Delta tables"
+    default: "periscope"
+  serving_endpoint:
+    description: "Foundation Model serving endpoint for LLM mapping"
+    default: "databricks-claude-sonnet-4-5"
+  vs_endpoint:
+    description: "Vector Search endpoint name"
+    default: "periscope-vs-endpoint"
+
+resources:
+  apps:
+    periscope_schema_harmonizer:
+      name: periscope-harmonizer-${bundle.target}
+      description: "AI-powered schema harmonization with human-in-the-loop review"
+      source_code_path: .
+      resources:
+        - name: sql-warehouse
+          sql_warehouse:
+            id: "08b49df602c99da9"
+            permission: CAN_USE
+        - name: periscope-db
+          postgres:
+            branch: "projects/periscope-harmonizer/branches/production"
+            database: "projects/periscope-harmonizer/branches/production/databases/db-2mut-x91480fa6r"
+            permission: CAN_CONNECT_AND_CREATE
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      profile: dev-profile
+
+  prod:
+    mode: production
+    workspace:
+      host: https://fevm-cfo-eval-demo.cloud.databricks.com/
+      profile: fe-vm-cfo-eval-demo
